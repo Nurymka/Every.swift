@@ -14,10 +14,10 @@ import XCTest
  - parameter seconds:    Delay value in seconds.
  - parameter completion: Handler that will be called after `delay`.
  */
-func delay(seconds seconds: Double, completion: Void -> Void) {
-    let popTime = dispatch_time(DISPATCH_TIME_NOW, Int64( Double(NSEC_PER_SEC) * seconds ))
+func delay(_ seconds: Double, completion: @escaping (Void) -> Void) {
+    let popTime = DispatchTime.now() + Double(Int64( Double(NSEC_PER_SEC) * seconds )) / Double(NSEC_PER_SEC)
     
-    dispatch_after(popTime, dispatch_get_main_queue()) {
+    DispatchQueue.main.asyncAfter(deadline: popTime) {
         completion()
     }
 }
@@ -36,10 +36,10 @@ class Every_swiftTests: XCTestCase {
     func testBasicTimerFunctionality()
     {
         
-        let expectation = self.expectationWithDescription("Fires in 1 second")
+        let expectation = self.expectation(description: "Fires in 1 second")
         
         
-        let startTime = NSDate()
+        let startTime = Date()
         
         TimerManager.every(1.seconds, owner: self, elapsedHandler: {
             
@@ -57,13 +57,13 @@ class Every_swiftTests: XCTestCase {
         })
         
         
-        self.waitForExpectationsWithTimeout(4, handler: nil)
+        self.waitForExpectations(timeout: 4, handler: nil)
         
         
     }
     
     func testClearAllTimers() {
-        let expectation = expectationWithDescription("Doesn't fires in 200 milliseconds")
+        let expectation = self.expectation(description: "Doesn't fires in 200 milliseconds")
         let timerOwner1 = NSObject()
         let timerOwner2 = NSObject()
         var fired1 = false
@@ -81,7 +81,7 @@ class Every_swiftTests: XCTestCase {
         
         TimerManager.clearAllTimers()
         
-        delay(seconds: 1.0) {
+        delay(1.0) {
             if !fired1 && !fired2 {
                 expectation.fulfill()
                 return
@@ -95,11 +95,11 @@ class Every_swiftTests: XCTestCase {
             }
         }
         
-        waitForExpectationsWithTimeout(1.5, handler: nil)
+        waitForExpectations(timeout: 1.5, handler: nil)
     }
     
     func testClearTimersForOwner() {
-        let expectation = expectationWithDescription("First timer fires and second doesn't")
+        let expectation = self.expectation(description: "First timer fires and second doesn't")
         let timerOwner1 = NSObject()
         let timerOwner2 = NSObject()
         var fired1 = false
@@ -117,7 +117,7 @@ class Every_swiftTests: XCTestCase {
         
         TimerManager.clearTimersForOwner(timerOwner2)
         
-        delay(seconds: 1.0) {
+        delay(1.0) {
             if fired1 && !fired2 {
                 expectation.fulfill()
                 return
@@ -131,11 +131,11 @@ class Every_swiftTests: XCTestCase {
             }
         }
         
-        waitForExpectationsWithTimeout(1.5, handler: nil)
+        waitForExpectations(timeout: 1.5, handler: nil)
     }
     
     func testClearTimer() {
-        let expectation = expectationWithDescription("First timer fires and second doesn't")
+        let expectation = self.expectation(description: "First timer fires and second doesn't")
         let timerOwner = NSObject()
         var fired1 = false
         var fired2 = false
@@ -152,7 +152,7 @@ class Every_swiftTests: XCTestCase {
         
         TimerManager.clearTimer(secondHandler)
         
-        delay(seconds: 1.0) {
+        delay(1.0) {
             if fired1 && !fired2 {
                 expectation.fulfill()
                 return
@@ -166,6 +166,6 @@ class Every_swiftTests: XCTestCase {
             }
         }
         
-        waitForExpectationsWithTimeout(1.5, handler: nil)
+        waitForExpectations(timeout: 1.5, handler: nil)
     }
 }

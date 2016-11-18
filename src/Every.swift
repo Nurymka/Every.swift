@@ -13,27 +13,27 @@ public typealias TimerElapsedHandler = () -> Bool
 public struct TimerHandler{
     public var isValid: Bool {
         guard let timer = item?.timer else { return false }
-        return timer.valid
+        return timer.isValid
     }
-    private let item: TimerItem?
-    private init(item: TimerItem) {
+    fileprivate let item: TimerItem?
+    fileprivate init(item: TimerItem) {
         self.item = item
     }
 }
 
 internal class TimerItem: NSObject {
-    private weak var timer: NSTimer?
-    private var elapsedHandler: TimerElapsedHandler
-    private weak var owner: AnyObject?
+    fileprivate weak var timer: Timer?
+    fileprivate var elapsedHandler: TimerElapsedHandler
+    fileprivate weak var owner: AnyObject?
     
-    private init(duration: NSTimeInterval, owner: AnyObject, elapsedHandler: TimerElapsedHandler) {
+    fileprivate init(duration: TimeInterval, owner: AnyObject, elapsedHandler: @escaping TimerElapsedHandler) {
         self.owner = owner
         self.elapsedHandler = elapsedHandler
         super.init()
-        self.timer = NSTimer.scheduledTimerWithTimeInterval(duration, target: self, selector: "timerElapsed:", userInfo: nil, repeats: true)
+        self.timer = Timer.scheduledTimer(timeInterval: duration, target: self, selector: #selector(TimerItem.timerElapsed(_:)), userInfo: nil, repeats: true)
     }
     
-    internal func timerElapsed(timer: NSTimer) {
+    internal func timerElapsed(_ timer: Timer) {
         guard timer == self.timer else { return }
         // Each time a timer is elapsed we check if the owner has been deallocated.
         // If it has been we deallocate the timer to.
@@ -43,35 +43,35 @@ internal class TimerItem: NSObject {
         }
     }
     
-    private func clearTimer() {
+    fileprivate func clearTimer() {
         self.timer?.invalidate()
     }
 }
 
 public struct TimerManager {
-    private static var timers = [TimerItem]()
+    fileprivate static var timers = [TimerItem]()
     
-    public static func every(interval: NSDateComponents, owner: AnyObject, elapsedHandler: TimerElapsedHandler) -> TimerHandler {
+    public static func every(_ interval: DateComponents, owner: AnyObject, elapsedHandler: @escaping TimerElapsedHandler) -> TimerHandler {
         let handler = TimerItem(duration: interval.durationInSeconds(), owner: owner, elapsedHandler: elapsedHandler)
         timers.append(handler)
 
         return TimerHandler(item: handler)
     }
     
-    public static func clearTimer(handler: TimerHandler) {
-        guard let timer = handler.item?.timer where timer.valid else { return }
+    public static func clearTimer(_ handler: TimerHandler) {
+        guard let timer = handler.item?.timer, timer.isValid else { return }
         
-        func timerItemPredicate(item: TimerItem) -> Bool {
+        func timerItemPredicate(_ item: TimerItem) -> Bool {
             return item.timer == timer
         }
         
-        if let index = timers.indexOf(timerItemPredicate) {
+        if let index = timers.index(where: timerItemPredicate) {
             handler.item?.clearTimer()
-            timers.removeAtIndex(index)
+            timers.remove(at: index)
         }
     }
     
-    public static func clearTimersForOwner(owner: AnyObject) {
+    public static func clearTimersForOwner(_ owner: AnyObject) {
         timers.filter({ $0.owner === owner }).forEach({ $0.clearTimer() })
         timers = timers.filter {
             $0.owner !== owner
@@ -85,13 +85,13 @@ public struct TimerManager {
         timers.removeAll()
     }
     
-    private static func clearTimer(timer: NSTimer) {
-        func timerItemPredicate(item: TimerItem) -> Bool {
+    fileprivate static func clearTimer(_ timer: Timer) {
+        func timerItemPredicate(_ item: TimerItem) -> Bool {
             return item.timer == timer
         }
         
-        if let index = timers.indexOf(timerItemPredicate) {
-            timers.removeAtIndex(index)
+        if let index = timers.index(where: timerItemPredicate) {
+            timers.remove(at: index)
         }
         print("Timer cleared !")
     }

@@ -8,18 +8,18 @@
 import Foundation
 
 public protocol TimerManageable: class {
-    func every(interval: NSDateComponents, elapsedHandler: TimerElapsedHandler) -> TimerHandler
-    func clearTimer(handler: TimerHandler)
-    func clearTimers()
-    func clearAllTimers()
+    func every(_ interval: DateComponents, elapsedHandler: @escaping TimerElapsedHandler) -> TimerHandler;
+    func clearTimer(_ handler: TimerHandler);
+    func clearTimers();
+    func clearAllTimers();
 }
 
 extension TimerManageable {
-    public func every(interval: NSDateComponents, elapsedHandler: TimerElapsedHandler) -> TimerHandler {
+    public func every(_ interval: DateComponents, elapsedHandler: @escaping TimerElapsedHandler) -> TimerHandler {
         return TimerManager.every(interval, owner: self, elapsedHandler: elapsedHandler)
     }
     
-    public func clearTimer(handler: TimerHandler) {
+    public func clearTimer(_ handler: TimerHandler) {
         TimerManager.clearTimer(handler)
     }
     

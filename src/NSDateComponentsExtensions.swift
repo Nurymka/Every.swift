@@ -17,11 +17,11 @@ private struct DateConstants {
     static let secPerNanosecond     = 1e-9
 }
 
-public extension NSDateComponents
+public extension DateComponents
 {
-    static public func zero()->NSDateComponents
+    static public func zero()->DateComponents
     {
-        let new         = NSDateComponents()
+        var new         = DateComponents()
         new.hour        = 0
         new.minute      = 0
         new.second      = 0
@@ -32,89 +32,89 @@ public extension NSDateComponents
         return new
     }
     
-    func durationInSeconds() -> NSTimeInterval
+    func durationInSeconds() -> TimeInterval
     {
-        let nanosecond = Double(self.nanosecond) * DateConstants.secPerNanosecond
-        let secAndMin = self.second + self.minute * DateConstants.secPerMinute
-        let hourAndDay = self.hour * DateConstants.secPerHour + self.day * DateConstants.secPerDay
-        let monthAndYear = self.month * DateConstants.secPerMonth + self.year * DateConstants.secPerYear
-        return NSTimeInterval(Double(secAndMin) + Double(hourAndDay) + Double(monthAndYear) + nanosecond)
+        let nanosecond = Double(self.nanosecond!) * DateConstants.secPerNanosecond
+        let secAndMin = self.second! + self.minute! * DateConstants.secPerMinute
+        let hourAndDay = self.hour! * DateConstants.secPerHour + self.day! * DateConstants.secPerDay
+        let monthAndYear = self.month! * DateConstants.secPerMonth + self.year! * DateConstants.secPerYear
+        return TimeInterval(Double(secAndMin) + Double(hourAndDay) + Double(monthAndYear) + nanosecond)
     }
     
 }
 
 
 public extension Int {
-    public var hours: NSDateComponents {
-            let components = NSDateComponents.zero()
+    public var hours: DateComponents {
+            var components = DateComponents.zero()
             components.hour = self
             return components
     }
     
-    public var minutes: NSDateComponents {
-            let components = NSDateComponents.zero()
+    public var minutes: DateComponents {
+            var components = DateComponents.zero()
             components.minute = self
             return components
     }
     
-    public var seconds: NSDateComponents {
-            let components = NSDateComponents.zero()
+    public var seconds: DateComponents {
+            var components = DateComponents.zero()
             components.second = self
             return components
     }
     
-    public var nanoseconds: NSDateComponents {
-        let components = NSDateComponents.zero()
+    public var nanoseconds: DateComponents {
+        var components = DateComponents.zero()
         components.nanosecond = self
         return components
     }
     
     
-    public var milliseconds: NSDateComponents {
-        let components = NSDateComponents.zero()
+    public var milliseconds: DateComponents {
+        var components = DateComponents.zero()
         components.nanosecond = self * 1000000
         return components
     }
     
-    public var days: NSDateComponents {
-            let components = NSDateComponents.zero()
+    public var days: DateComponents {
+            var components = DateComponents.zero()
             components.day = self
             return components
     }
     
-    public var months : NSDateComponents {
-            let components = NSDateComponents.zero()
+    public var months : DateComponents {
+            var components = DateComponents.zero()
             components.month = self
             return components
     }
     
-    public var weeks: NSDateComponents {
-            let components = NSDateComponents.zero()
+    public var weeks: DateComponents {
+            var components = DateComponents.zero()
             components.day = self*7
             return components
     }
     
     
-    public var years: NSDateComponents {
-        let components = NSDateComponents.zero()
+    public var years: DateComponents {
+        var components = DateComponents.zero()
         components.year = self
         return components
     }
 }
 
-public func +(compOne: NSDateComponents , compTwo: NSDateComponents) -> NSDateComponents {
-    let newComponent = NSDateComponents()
-    newComponent.minute     =   compOne.minute      + compTwo.minute
-    newComponent.second     =   compOne.second      + compTwo.second
-    newComponent.hour       =   compOne.hour        + compTwo.hour
-    newComponent.day        =   compOne.day         + compTwo.day
-    newComponent.month      =   compOne.month       + compTwo.month
-    newComponent.year       =   compOne.year        + compTwo.year
-    newComponent.nanosecond =   compOne.nanosecond  + compTwo.nanosecond
+public func +(compOne: DateComponents , compTwo: DateComponents) -> DateComponents {
+    var newComponent = DateComponents()
+    newComponent.minute     =   compOne.minute!      + compTwo.minute!
+    newComponent.second     =   compOne.second!      + compTwo.second!
+    newComponent.hour       =   compOne.hour!        + compTwo.hour!
+    newComponent.day        =   compOne.day!         + compTwo.day!
+    newComponent.month      =   compOne.month!       + compTwo.month!
+    newComponent.year       =   compOne.year!        + compTwo.year!
+    newComponent.nanosecond =   compOne.nanosecond!  + compTwo.nanosecond!
     return newComponent
 }
 
 
-public func -(frmDate: NSDate , toDate: NSDate) -> NSDateComponents{
-    return NSCalendar.currentCalendar().components([.Year, .Month, .Day, .Hour, .Minute, .Second,.Nanosecond], fromDate: toDate, toDate: frmDate, options: NSCalendarOptions(rawValue:0))
+public func -(frmDate: Date , toDate: Date) -> DateComponents{
+    return (Calendar.current as NSCalendar).components([.year, .month, .day, .hour, .minute, .second,.nanosecond], from: toDate, to: frmDate, options: NSCalendar.Options(rawValue:0))
 }
